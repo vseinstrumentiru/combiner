@@ -36,12 +36,7 @@ parse_args() {
     esac
   done
   shift $((OPTIND - 1))
-  PROJECT_DIR=$1
-  if [ "$PROJECT_DIR" == "" ]; then
-    BINDIR=${BINDIR:-./bin}
-  else
-    BINDIR=${BINDIR:-"${PROJECT_DIR}/bin"}
-  fi
+  BINDIR=${BINDIR:-./bin}
 }
 # this function wraps all the destructive operations
 # if a curl|bash cuts off the end of the script due to
@@ -61,9 +56,6 @@ execute() {
       binexe="${binexe}.exe"
     fi
 
-    if [ "$PROJECT_DIR" != "" ]; then
-      "${srcdir}/${binexe}" init "${PROJECT_DIR}"
-    fi
     install "${srcdir}/${binexe}" "${BINDIR}/"
     log_info "installed ${BINDIR}/${binexe}"
   done
