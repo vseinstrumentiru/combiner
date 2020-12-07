@@ -7,8 +7,32 @@ import (
 	"github.com/vseinstrumentiru/combiner/cmd"
 )
 
+type fileConfig struct {
+	Path     string
+	Out      string
+	BaseName string
+	Groups   map[string]map[string]interface{}
+}
+
+func (f fileConfig) toCombineArgs() cmd.CombineArgs {
+	arg := cmd.CombineArgs{
+		Path:     f.Path,
+		Out:      f.Out,
+		BaseName: f.BaseName,
+		Groups:   make(map[string][]string, len(f.Groups)),
+	}
+
+	for s, m := range f.Groups {
+		for n, _ := range m {
+			arg.Groups[s] = append(arg.Groups[s], n)
+		}
+	}
+
+	return arg
+}
+
 type config struct {
-	Files []cmd.CombineArgs
+	Files []fileConfig
 }
 
 func main() {
@@ -36,7 +60,7 @@ func main() {
 					file.Out = "values.yaml"
 				}
 
-				if err := cmd.Combine(file); err != nil {
+				if err := cmd.Combine(file.toCombineArgs()); err != nil {
 					return err
 				}
 			}

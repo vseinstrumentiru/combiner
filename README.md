@@ -36,21 +36,24 @@ Folder with yaml configs to merge (default "./values")
 #### Run with combine.yaml
 1. Define `combine.yaml` file with structure:
 ```yaml
+.default: &default:
+  file1: ~
+
 files:
 - out: "values.yaml" // combined file name. default "values.yaml"
   path: "./values" // where chunks located. default "./values"
   groups: // groups of config
     group1:
-      - file1
-      - file2
+      <<: *default
+      file2: ~
     group2:
-      - file3
-      - file4
+      file3: ~
+      file4: ~
 - out: "values2.yaml"
   groups:
     group1:
-      - file1
-      - file3
+      <<: *default
+      file3: ~
 ```
 2. Run `combiner` in folder with `combine.yaml`.
 It will create files values.yaml (with sections group1 and group2) and values2.yaml (with the section group1)
