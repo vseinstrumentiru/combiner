@@ -9,6 +9,8 @@ import (
 )
 
 func CombineCmd() *cobra.Command {
+	var withoutBase bool
+
 	cfg := CombineArgs{Groups: map[string][]string{}}
 	cmd := &cobra.Command{
 		Use:   "combine group1:file1,file2 file3 group3:file4,file5 ...",
@@ -30,6 +32,10 @@ All merged config writes by sections, where section name is a group name.`,
 				}
 			}
 
+			if !withoutBase && cfg.BaseName == "" {
+				cfg.BaseName = "default"
+			}
+
 			return Combine(cfg)
 		},
 	}
@@ -40,20 +46,19 @@ All merged config writes by sections, where section name is a group name.`,
 		&cfg.BaseName,
 		"default",
 		"d",
-		"default",
+		"",
 		"Default config file name (without extension). This is base config file for other Groups",
 	)
-	cmd.Flags().BoolVarP(&cfg.WithoutBase, "no-default", "n", false, "Without default file config")
+	cmd.Flags().BoolVarP(&withoutBase, "no-default", "n", false, "(deprecated) Without default file config")
 
 	return cmd
 }
 
 type CombineArgs struct {
-	Path        string
-	Out         string
-	WithoutBase bool
-	BaseName    string
-	Groups      map[string][]string
+	Path     string
+	Out      string
+	BaseName string
+	Groups   map[string][]string
 }
 
 func Combine(args CombineArgs) error {
@@ -63,7 +68,7 @@ func Combine(args CombineArgs) error {
 		reader := viper.New()
 		reader.AddConfigPath(args.Path)
 
-		if !args.WithoutBase {
+		if args.BaseName != "" {
 			reader.SetConfigName(args.BaseName)
 			if err := reader.MergeInConfig(); err != nil {
 				return err

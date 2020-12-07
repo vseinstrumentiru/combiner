@@ -26,7 +26,7 @@ group3:
 #### Flags:
 ###### `-d`, `--default`
 Default config file name (without extension). This is base config file for other groups (default "default")
-###### `-n`, `--no-default`
+###### Deprecated `-n`, `--no-default`
 Without default file config
 ####### `-o`, `--out string`
 Output file name (default "values.yaml")
@@ -34,7 +34,7 @@ Output file name (default "values.yaml")
 Folder with yaml configs to merge (default "./values")
 
 #### Run with combine.yaml
-1. Define ```combine.yaml``` file with structure:
+1. Define `combine.yaml` file with structure:
 ```yaml
 files:
 - out: "values.yaml" // combined file name. default "values.yaml"
@@ -52,7 +52,7 @@ files:
       - file1
       - file3
 ```
-2. Run ```combiner``` in folder with ```combine.yaml```.
+2. Run `combiner` in folder with `combine.yaml`.
 It will create files values.yaml (with sections group1 and group2) and values2.yaml (with the section group1)
 ---
 

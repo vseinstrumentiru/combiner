@@ -31,12 +31,11 @@ func main() {
 				if file.Path == "" {
 					file.Path = "./values"
 				}
+
 				if file.Out == "" {
 					file.Out = "values.yaml"
 				}
-				if file.BaseName == "" {
-					file.BaseName = "default"
-				}
+
 				if err := cmd.Combine(file); err != nil {
 					return err
 				}
