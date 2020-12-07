@@ -7,26 +7,42 @@ import (
 	"github.com/vseinstrumentiru/combiner/cmd"
 )
 
+type config struct {
+	Files []cmd.CombineArgs
+}
+
 func main() {
 	root := &cobra.Command{
 		RunE: func(_ *cobra.Command, _ []string) error {
 			v := viper.New()
 			v.AddConfigPath(".")
 			v.SetConfigName("combine")
-			v.SetDefault("path", "./values")
-			v.SetDefault("out", "values.yaml")
-			v.SetDefault("baseName", "default")
-			v.SetDefault("withoutBase", false)
+
 			if err := v.MergeInConfig(); err != nil {
 				return err
 			}
 
-			var cfg cmd.CombineArgs
+			var cfg config
 			if err := v.Unmarshal(&cfg); err != nil {
 				return err
 			}
 
-			return cmd.Combine(cfg)
+			for _, file := range cfg.Files {
+				if file.Path == "" {
+					file.Path = "./values"
+				}
+				if file.Out == "" {
+					file.Out = "values.yaml"
+				}
+				if file.BaseName == "" {
+					file.BaseName = "default"
+				}
+				if err := cmd.Combine(file); err != nil {
+					return err
+				}
+			}
+
+			return nil
 		},
 	}
 
