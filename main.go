@@ -19,7 +19,7 @@ type fileConfig struct {
 	Path     string
 	Out      string
 	BaseName string
-	Envs     []envFile `mapstrusture:"groups"`
+	Envs     []envFile `mapstructure:"groups"`
 }
 
 func (f fileConfig) toCombineArgs() cmd.CombineArgs {
