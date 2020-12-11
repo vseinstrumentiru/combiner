@@ -1,7 +1,11 @@
 .DS_Store
 /.idea/
 /vendor/
-/values/
 /plz-out/
-/values.yaml
+
+# test
 /combine.yaml
+/values/
+/secrets/
+/values.yaml
+/secret-values.yaml

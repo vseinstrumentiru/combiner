@@ -1,17 +1,25 @@
 package main
 
 import (
+	"fmt"
+
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
 	"github.com/vseinstrumentiru/combiner/cmd"
 )
 
+type envFile struct {
+	Name  string
+	Range *[2]int
+	Files []string
+}
+
 type fileConfig struct {
 	Path     string
 	Out      string
 	BaseName string
-	Groups   map[string]map[string]interface{}
+	Envs     []envFile `mapstrusture:"groups"`
 }
 
 func (f fileConfig) toCombineArgs() cmd.CombineArgs {
@@ -19,12 +27,26 @@ func (f fileConfig) toCombineArgs() cmd.CombineArgs {
 		Path:     f.Path,
 		Out:      f.Out,
 		BaseName: f.BaseName,
-		Groups:   make(map[string][]string, len(f.Groups)),
+		Groups:   make(map[string][]string),
 	}
 
-	for s, m := range f.Groups {
-		for n, _ := range m {
-			arg.Groups[s] = append(arg.Groups[s], n)
+	if arg.Path == "" {
+		arg.Path = "./values"
+	}
+
+	if arg.Out == "" {
+		arg.Out = "values.yaml"
+	}
+
+	for _, env := range f.Envs {
+		if env.Range != nil {
+			for i := (*env.Range)[0]; i <= (*env.Range)[1]; i++ {
+				name := fmt.Sprintf(env.Name, i)
+				arg.Groups[name] = append(arg.Groups[name], env.Files...)
+			}
+		} else {
+			name := env.Name
+			arg.Groups[name] = append(arg.Groups[name], env.Files...)
 		}
 	}
 
@@ -32,7 +54,7 @@ func (f fileConfig) toCombineArgs() cmd.CombineArgs {
 }
 
 type config struct {
-	Files []fileConfig
+	Items []fileConfig `mapstructure:"combine"`
 }
 
 func main() {
@@ -51,15 +73,7 @@ func main() {
 				return err
 			}
 
-			for _, file := range cfg.Files {
-				if file.Path == "" {
-					file.Path = "./values"
-				}
-
-				if file.Out == "" {
-					file.Out = "values.yaml"
-				}
-
+			for _, file := range cfg.Items {
 				if err := cmd.Combine(file.toCombineArgs()); err != nil {
 					return err
 				}
